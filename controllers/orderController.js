@@ -25,7 +25,7 @@ const orderProducts = asyncHandler(
 
 //@des GET Get orders of an user
 //@route /api/orders/me
-//@access Privatee
+//@access Private
 const getUserOrders = asyncHandler(
     async (req, res) => {
         const orders = await Order.find({ user: req.user._id })
@@ -56,7 +56,7 @@ const getOrderById = asyncHandler(
                 throw new Error('Not authorized')
             }
         }
-        else{
+        else {
             res.status(200).json(order)
         }
 
@@ -64,9 +64,9 @@ const getOrderById = asyncHandler(
 )
 
 //@desc  Get all orders
-//@route /api/orders
+//@route /api/orders/admin
 //@access private (admin)
-const getAllOrders = asyncHandler(
+const getAllUsersOrders = asyncHandler(
     async (req, res) => {
         const orders = await Order.find({}).populate('user', 'name')
         if (!orders) {
@@ -78,4 +78,27 @@ const getAllOrders = asyncHandler(
     }
 )
 
-module.exports = { orderProducts, getOrderById, getUserOrders, getAllOrders }
+//@desc DLETE Delete a order by admin using id
+//@route /api/orders/admin/:orderId
+//@access private (Admin)
+const deleteOrderByAdmin = asyncHandler(
+    async (req, res) => {
+        console.log(req.params.id)
+        const order = await Order.findById(req.params.orderId)
+        if (!order) {
+            res.status(404)
+            throw new Error('Order not found')
+        }
+        const deletedOrder = await order.remove()
+        res.status(200).json(deletedOrder)
+
+    }
+)
+
+module.exports = { 
+    orderProducts, 
+    getOrderById, 
+    getUserOrders, 
+    getAllUsersOrders,
+    deleteOrderByAdmin,
+}
