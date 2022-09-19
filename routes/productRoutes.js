@@ -1,19 +1,21 @@
 const express = require('express')
-const Product = require('../models/productModel')
+const { getProducts,
+    getProductBySlug,
+    getProductsByAdmin,
+    createProduct,
+    getProductById,
+    EditProductById, 
+    deleteProductById} = require('../controllers/productController')
+const isAdmin = require('../middleware/adminMiddleware')
+const protect = require('../middleware/authMiddleware')
 const productRouter = express.Router()
 
-productRouter.get('/', async (req, res)=>{
-    const products = await Product.find()
-    res.send(products)
-})
-productRouter.get('/:slug', async (req, res)=>{
-    const slug = req.params.slug
-    const product = await Product.findOne({slug: slug})
-    if(product){
-        res.send(product)
-    }else{
-        res.status(404).send('Product not found')
-    }
-})
+productRouter.get('/', getProducts)
+productRouter.post('/', protect, isAdmin, createProduct)
+productRouter.get('/admin', protect, isAdmin, getProductsByAdmin)
+productRouter.get('/:slug', getProductBySlug)
+productRouter.get('/admin/:id', protect, isAdmin, getProductById)
+productRouter.put('/admin/:id', protect, isAdmin, EditProductById)
+productRouter.delete('/admin/:id', protect, isAdmin, deleteProductById)
 
 module.exports = productRouter

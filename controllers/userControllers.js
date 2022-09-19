@@ -6,7 +6,7 @@ const User = require('../models/userModel')
 //@desc Signin a user
 //@routes POST api/users/signin
 //@access Public
-const signinUser = asyncHandler(async (req, res)=>{
+const signinUser = asyncHandler(async (req, res)=>{ 
     const {email, password} = req.body
     const user = await User.findOne({email})
     if(user && await(bcrypt.compare(password, user.password))){

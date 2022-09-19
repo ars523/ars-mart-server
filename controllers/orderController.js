@@ -27,9 +27,9 @@ const orderProducts = asyncHandler(
 //@route /api/orders/me
 //@access Privatee
 const getUserOrders = asyncHandler(
-    async (req, res)=>{
-        const orders = await Order.find({user: req.user._id})
-        if(!orders){
+    async (req, res) => {
+        const orders = await Order.find({ user: req.user._id })
+        if (!orders) {
             res.status(404)
             throw new Error('Not found')
         }
@@ -47,14 +47,35 @@ const getOrderById = asyncHandler(
             res.status(404)
             throw new Error('Order not found')
         }
-
-        if (order.user.toString() !== req.user._id.toString()) {
-            res.status(401)
-            throw new Error('Not authorized')
+        else if (order.user.toString() !== req.user._id.toString()) {
+            if (req.user.isAdmin) {
+                res.status(200).json(order)
+            }
+            else {
+                res.status(401)
+                throw new Error('Not authorized')
+            }
         }
-        res.status(200).json(order)
+        else{
+            res.status(200).json(order)
+        }
 
     }
 )
 
-module.exports = { orderProducts, getOrderById, getUserOrders}
+//@desc  Get all orders
+//@route /api/orders
+//@access private (admin)
+const getAllOrders = asyncHandler(
+    async (req, res) => {
+        const orders = await Order.find({}).populate('user', 'name')
+        if (!orders) {
+            res.status(404)
+            throw new Error('Not found')
+        }
+        res.status(200).json(orders)
+
+    }
+)
+
+module.exports = { orderProducts, getOrderById, getUserOrders, getAllOrders }
