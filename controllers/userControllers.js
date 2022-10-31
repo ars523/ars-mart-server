@@ -23,8 +23,19 @@ const signinUser = asyncHandler(async (req, res)=>{
     }
 })
 
+
+//@desc Signin a user
+//@routes POST api/users
+//@access private (Admin)
+const getAllUsers = asyncHandler(
+    async (req, res)=>{
+        const allUsers = await User.find({}).select('-password')
+        res.status(200).json(allUsers)
+    }
+)
+
 function getToken(id){
     return jwt.sign({id},process.env.JWT_SECRET ,{expiresIn: '30d'})
 }
 
-module.exports = {signinUser}
+module.exports = {signinUser, getAllUsers}
