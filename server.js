@@ -7,6 +7,7 @@ const seedRouter = require('./routes/seedRoutes')
 const productRouter = require('./routes/productRoutes')
 const userRouter = require('./routes/usersRoutes')
 const orderRouter = require('./routes/orderRoutes')
+const uploadRouter = require('./routes/uploadRoutes')
 connectDb()
 
 const app = express()
@@ -19,6 +20,7 @@ app.use('/api/seed', seedRouter)
 app.use('/api/products', productRouter)
 app.use('/api/users', userRouter)
 app.use('/api/orders', orderRouter)
+app.use('/api/upload', uploadRouter)
 
 
 app.use(errorHandler)
