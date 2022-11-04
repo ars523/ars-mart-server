@@ -1,5 +1,7 @@
 const asyncHandler = require('express-async-handler')
 const Order = require('../models/orderModel')
+const Product = require('../models/productModel')
+const User = require('../models/userModel')
 
 //@des POST Order Product
 //@route /api/orders
@@ -95,10 +97,55 @@ const deleteOrderByAdmin = asyncHandler(
     }
 )
 
+//@desc GET get order summery
+//@route /api/orders/summery
+//@access private (Admin)
+const getOrderSummery = asyncHandler(
+    async (req, res) =>{
+        const orders = await Order.aggregate([
+            {
+              $group: {
+                _id: null,
+                numOrders: { $sum: 1 },
+                totalSales: { $sum: '$totalPrice' },
+              },
+            },
+          ]);
+          const users = await User.aggregate([
+            {
+              $group: {
+                _id: null,
+                numUsers: { $sum: 1 },
+              },
+            },
+          ]);
+          const dailyOrders = await Order.aggregate([
+            {
+              $group: {
+                _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+                orders: { $sum: 1 },
+                sales: { $sum: '$totalPrice' },
+              },
+            },
+            { $sort: { _id: 1 } },
+          ]);
+          const productCategories = await Product.aggregate([
+            {
+              $group: {
+                _id: '$category',
+                count: { $sum: 1 },
+              },
+            },
+          ]);
+          res.send({ users, orders, dailyOrders, productCategories });
+    }
+)
+
 module.exports = { 
     orderProducts, 
     getOrderById, 
     getUserOrders, 
     getAllUsersOrders,
     deleteOrderByAdmin,
+    getOrderSummery,
 }
