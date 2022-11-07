@@ -135,6 +135,7 @@ const getOrderSummery = asyncHandler(
                 _id: '$category',
                 count: { $sum: 1 },
               },
+              
             },
           ]);
           res.send({ users, orders, dailyOrders, productCategories });
