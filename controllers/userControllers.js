@@ -3,6 +3,55 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken')
 const User = require('../models/userModel')
 
+
+//@des Register new user
+//@route /api/users/register
+//@access Public
+const registerUser = asyncHandler(async (req, res) => {
+    const { name, email, password, confirmPassword } = req.body;
+    if (!name || !email || !password || !confirmPassword) {
+        res.status(400)
+        throw new Error('Please include all fields')
+    }
+    //Check password matched or not
+    if (password !== confirmPassword) {
+        res.status(400)
+        throw new Error('Password not matched')
+    }
+    //Find if user already exist
+    const userExist = await User.findOne({ email })
+    if (userExist) {
+        res.status(400)
+        throw new Error('User already exist')
+    }
+
+    //Hash password
+    const salt = await bcrypt.genSalt(10)
+    const hashedPassword = await bcrypt.hash(password, salt)
+
+    //Create user
+    const user = await User.create({
+        name,
+        email,
+        password: hashedPassword
+    })
+
+    if (user) {
+        res.status(201).json({
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            token: getToken(user._id)
+        })
+    }
+    else {
+        res.status(400)
+        throw new error('Invalid user data');
+    }
+})
+
+
+
 //@desc Signin a user
 //@routes POST api/users/signin
 //@access Public
@@ -24,7 +73,7 @@ const signinUser = asyncHandler(async (req, res) => {
 })
 
 
-//@desc Signin a user
+//@desc get all users
 //@routes POST api/users
 //@access private (Admin)
 const getAllUsers = asyncHandler(
@@ -54,7 +103,7 @@ const updateUserProfile = asyncHandler(
                 isAdmin: updatedUser.isAdmin,
                 token: getToken(updatedUser._id)
             })
-        }else{
+        } else {
             res.status(404).json("user not found")
         }
 
@@ -69,4 +118,5 @@ module.exports = {
     signinUser,
     getAllUsers,
     updateUserProfile,
+    registerUser,
 }
