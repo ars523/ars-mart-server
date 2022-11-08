@@ -110,6 +110,22 @@ const updateUserProfile = asyncHandler(
     }
 )
 
+//@desc delete a user
+//@routes DELETE api/users/:id
+//@access private (Admin)
+const deleteUser = asyncHandler(
+    async (req, res) => {
+        const id = req.params.id
+        const user = await User.findById(id)
+        if(!user){
+            res.status(404)
+            throw new Error('User not found')
+        }
+        const removedUser = await user.remove()
+        res.status(200).json(removedUser)
+    }
+)
+
 function getToken(id) {
     return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' })
 }
@@ -119,4 +135,6 @@ module.exports = {
     getAllUsers,
     updateUserProfile,
     registerUser,
+    deleteUser,
+    
 }
