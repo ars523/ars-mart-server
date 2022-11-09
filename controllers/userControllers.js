@@ -83,7 +83,7 @@ const getAllUsers = asyncHandler(
     }
 )
 
-//@desc update user
+//@desc update user profile
 //@route PUT api/users/profile
 //@access private
 const updateUserProfile = asyncHandler(
@@ -126,6 +126,42 @@ const deleteUser = asyncHandler(
     }
 )
 
+//@desc get a user by id
+//@routes GET api/users/:id
+//@access private (Admin)
+const getUser = asyncHandler(
+    async (req, res) => {
+        const id = req.params.id
+        const user = await User.findById(id).select('-password')
+        if(!user){
+            res.status(404)
+            throw new Error('User not found')
+        }
+        res.status(200).json(user)
+    }
+)
+
+//@desc update a user
+//@routes PUT api/users/:id
+//@access private (Admin)
+const updateUser = asyncHandler(
+    async (req, res) => {
+        const id = req.params.id
+        const user = await User.findById(id)
+        if(user){
+            user.name = req.body.name || user.name;
+            user.email = req.body.email || user.email;
+            user.isAdmin = Boolean(req.body.isAdmin);
+            const updatedUser = await user.save();
+            res.json({message: 'User Updated', user: updatedUser})
+        }else{
+            res.status(404)
+            throw new Error('User not found')
+        }
+        
+    }
+)
+
 function getToken(id) {
     return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' })
 }
@@ -136,5 +172,6 @@ module.exports = {
     updateUserProfile,
     registerUser,
     deleteUser,
-    
+    updateUser,
+    getUser,
 }
