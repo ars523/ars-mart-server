@@ -1,4 +1,5 @@
 const express = require('express')
+const cors = require('cors');
 const dotevn = require('dotenv').config()
 const path = require('path')
 const data = require('./data')
@@ -16,7 +17,7 @@ const Port = 5000
 
 app.use(express.json())
 app.use(express.urlencoded({extended:false}))
-
+app.use(cors({origin:['http://localhost:3000', 'https://ars-mart.onrender.com']}));
 app.use('/api/seed', seedRouter)
 app.use('/api/products', productRouter)
 app.use('/api/users', userRouter)
