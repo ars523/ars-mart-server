@@ -85,7 +85,6 @@ const getAllUsersOrders = asyncHandler(
 //@access private (Admin)
 const deleteOrderByAdmin = asyncHandler(
     async (req, res) => {
-        console.log(req.params.id)
         const order = await Order.findById(req.params.orderId)
         if (!order) {
             res.status(404)
