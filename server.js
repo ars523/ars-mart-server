@@ -17,7 +17,7 @@ const Port = process.env.PORT || 5000
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
-app.use(cors({ origin: ['http://localhost:3000', 'https://ars-mart.onrender.com'] }));
+app.use(cors({ origin: ['http://localhost:3000', 'https://ars-mart.onrender.com', 'http://localhost:3001'] }));
 app.use('/api/seed', seedRouter)
 app.use('/api/products', productRouter)
 app.use('/api/users', userRouter)
