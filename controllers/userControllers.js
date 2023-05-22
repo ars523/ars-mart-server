@@ -74,12 +74,20 @@ const signinUser = asyncHandler(async (req, res) => {
 
 
 //@desc get all users
-//@routes POST api/users
+//@routes Get api/users
 //@access private (Admin)
 const getAllUsers = asyncHandler(
     async (req, res) => {
-        const allUsers = await User.find({}).select('-password')
-        res.status(200).json(allUsers)
+        const page = req?.query?.page || 1
+        const pageSize = req.query.pageSize || 10
+        const users = await User.find({}).select('-password').skip(pageSize * (page - 1)).limit(pageSize)
+        const countUsers = await User.countDocuments();
+        res.status(200).json({
+            users,
+            countUsers,
+            page,
+            pages: Math.ceil(countUsers / pageSize)
+          })
     }
 )
 
@@ -117,7 +125,7 @@ const deleteUser = asyncHandler(
     async (req, res) => {
         const id = req.params.id
         const user = await User.findById(id)
-        if(!user){
+        if (!user) {
             res.status(404)
             throw new Error('User not found')
         }
@@ -133,7 +141,7 @@ const getUser = asyncHandler(
     async (req, res) => {
         const id = req.params.id
         const user = await User.findById(id).select('-password')
-        if(!user){
+        if (!user) {
             res.status(404)
             throw new Error('User not found')
         }
@@ -148,17 +156,17 @@ const updateUser = asyncHandler(
     async (req, res) => {
         const id = req.params.id
         const user = await User.findById(id)
-        if(user){
+        if (user) {
             user.name = req.body.name || user.name;
             user.email = req.body.email || user.email;
             user.isAdmin = Boolean(req.body.isAdmin);
             const updatedUser = await user.save();
-            res.json({message: 'User Updated', user: updatedUser})
-        }else{
+            res.json({ message: 'User Updated', user: updatedUser })
+        } else {
             res.status(404)
             throw new Error('User not found')
         }
-        
+
     }
 )
 
